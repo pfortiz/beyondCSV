@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#../src/bookmaker wook.txt ../web contents
+../src/bookmaker wook.txt noWeb contents

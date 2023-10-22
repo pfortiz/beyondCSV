@@ -1,0 +1,5 @@
+\contentsline {chapter}{Dedication}{2}{Doc-Start}
+\contentsline {chapter}{Contents}{3}{section*.1}
+\contentsline {chapter}{Introduction}{4}{section*.1}
+\contentsline {chapter}{\chapternumberline {1}The data storage conundrum}{5}{chapter.1}
+\contentsline {section}{\numberline {1.1}Everything is binary}{5}{section.1.1}

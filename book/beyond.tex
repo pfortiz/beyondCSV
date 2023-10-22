@@ -1,0 +1,158 @@
+% for an ebook, oneside is better than twoside, which is great for a 
+% printed document, but it makes little sense in electronic mode.
+% PFO. BEGIN: May 03, 2020
+% PFO. END:     ---
+%\documentclass[12pt,a4paper,oneside, openany]{memoir}
+
+\documentclass[11pt,openany]{memoir}
+\makeindex
+
+
+% size defined for amazon Kindle printable PDF
+\setstocksize{9in}{6in}
+\settrimmedsize{\stockheight}{\dimexpr 6in-19mm}{*}
+\settypeblocksize{516.9312pt}{243.6962pt}{*}
+
+%\documentclass[12pt]{article}
+
+\usepackage{geometry}
+\usepackage{wrapfig}
+\usepackage{comment}
+\usepackage{soul}
+\usepackage{longtable}
+
+\def \foryoureyesonly {1}
+
+\ifdefined\foryoureyesonly
+\usepackage{draftwatermark}
+\SetWatermarkText{Ortiz$$-\copyright\ 2023}
+\SetWatermarkScale{2}
+\fi
+
+
+% see geometry.pdf on how to lay out the page. There's lots.
+% next is for electronic version of pdf
+ \usepackage{hyperref, color}
+ 
+ % package float is to locate figures in a given location
+% \usepackage{float}
+
+\usepackage[T1]{fontenc}
+\usepackage{titlesec, blindtext, color}
+\definecolor{gray75}{gray}{0.75}
+\definecolor{gray85}{gray}{0.85}
+\definecolor{mygray}{gray}{0.40}
+\definecolor{OliveGreen}{rgb}{0,0.6,0}
+\newcommand{\hsp}{\hspace{20pt}}
+
+% \usepackage{soul}
+
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{xcolor}
+\usepackage{environ}
+\usepackage{lipsum}
+\usepackage{lineno}
+\usepackage{fnlineno}
+\usepackage{caption}
+\usepackage{titlesec}
+
+%\def \espanol {1}
+\def \inglese {1}
+
+% The next two lines allow me to use iso-latin symbols inside the text
+\ifdefined\espanol
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{titlesec}
+\inputencoding{latin1}
+\fi
+
+
+\textwidth=4.9in
+\textheight=7.35in
+\evensidemargin=-0.65in
+\oddsidemargin=-0.25in
+\topmargin=-0.7in
+
+\def\amper{\&}
+
+%\geometry{a4paper} % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+
+% See the ``Article customise'' template for come common customisations
+
+\ifdefined\espanol
+%\title{El Universo desconocido de la  INTERNET}
+\title{Los ni\~nos y la Web:\\ Los desaf\'ios de ser padres en la era digital}
+\else
+\title{Data Storage beyond CSV}
+\fi
+
+
+\author{Patricio F. Ortiz}
+%\author{\makebox[.9\textwidth]{Patricio F. Ortiz} \\  \\ y \and \\ Sebastian E. Ortiz}
+\date{Mid October 2023}
+
+\linenumbers
+
+
+% definitions, to be imported from a file
+\input{bookDefinitions.tex}
+\input{textDefs.tex}
+
+
+%%% BEGIN DOCUMENT
+\setsecnumdepth{subsubsection}
+\maxtocdepth{subsubsection}
+%\setsecnumdepth{subsection}
+%\maxtocdepth{subsection}
+% Changing the geometry of a chapter title:
+
+\titleformat{\chapter}{\Huge\bfseries}{\chaptername\ \thechapter}{-50pt}{\vskip 10pt\raggedright}
+\titlespacing{\chapter}{0pt}{0pt}{20pt}%
+
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+
+\begin{document}
+
+%\titlespacing{\chapter}{0pt}{30pt}{10pt}
+
+%\setsecnumdepth{section}
+%\maxtocdepth{section}
+
+
+\parskip=1.8ex
+
+\maketitle
+\newpage
+\newpage
+
+%\pagestyle{empty}
+
+\input{dedication.tex}
+
+\pagebreak
+
+\tableofcontents
+
+%\glsaddall
+
+\newpage
+%\printacronyms
+%\printglossary 
+
+% Do NOT remove the following line. It is used by lat2kindle
+%beginning of book
+
+\begin{comment}
+This is supposed to be a hidden text, not shown in the resulting pdf
+and mot a fucking errors and that's it.
+\end{comment}
+
+\input{preface.tex}
+
+\input{contents/backbones.tex}
+
+\printindex
+\end{document}

@@ -1,0 +1,92 @@
+book_languages|languages|inglese
+book_title|title|Data storage: beyond CSV|Almacenamiento de datos
+book_author|author|by Patricio F. Ortiz
+book_css|css|internet.css
+book_js|js|internet.js
+book_webpage|webpage|en_bcsv.html|sp_bcsv.html
+# this is the file containing all information regarding the skeleton of the
+# book, including the figures
+#part|theWeb|The Web a mirror of humanity|La web: un espejo de la humanidad
+
+invchapter|intro|The data storage conundrum
+invsection|binary|Everything is binary
+
+#invchapter|parentsrole|Our role as parents|Nuestro rol como padres y guardianes
+#invsection|dangerous|Hazards, risks, damage|Peligros, da\~nos y riesgos
+#
+#
+#invchapter|natureOfTheWeb|Is the web good or bad?|\oqm Es buena o mala la Web\cqm
+#invsection|technosocial|The technical and social aspects|Los aspectos t\'ecnicos y humanos
+#invsection|techGood|Positive technical aspects|Tecnolog\'ias positivas
+#invsection|techEvil|Worrisome technical aspects|Tecnolog\'ias preocupantes
+#invsection|brightSide|The bright side of Internet|El lado brillante de Internet
+#invsection|darkSide|The dark side of Internet|El lado oscuro de Internet
+#
+#invchapter|childDevelopment|How children grow|El desarrollo de nuestros ni\~nos
+#invsection|inutero|\it{In utero} before birth|\it{In utero} antes de nacer
+#invsection|yearOne|The first year of life|El primer a\~no de vida
+#invsection|firstFewYears|The first years|Los primeros a\~nos
+#invsection|schoolyears|The first school years|Los primeros a\~nos de escuela
+#invsection|synapticpruning|Synaptic pruning|Las podas sin\'apticas
+#invsection|preteeen|Pre-adolescence|La pre-adolescencia
+#invsection|teens|Adolescence: teenagers|La adolescencia
+#invsection|notech|Dangerous technologies|Tecnolog\'ias peligrosas
+#
+#
+#invchapter|pubAndAddictions|Habits and addictions|H\'abitos y addictiones
+#invsection|psipsi|The double role of psichology|El doble rol de la psicolog\'ia
+#invsection|addictions|Addictions|Addicciones
+#invsection|adTechniques|Advertisment techniques|T\'ecnicas de publicidad
+#invsection|effectsOnKids|Effects on children|Como inciden en los ni\~nos
+#invsection|kindermarket|The children's market|El gran mercado para los ni\~nos
+##invchapter|kindermarket|The children's market|El gran mercado para los ni\~nos
+#
+##part|kinder|The Internet and children|La Internet y los ni\~nos
+#invchapter|webexp|Exposure to the web|Exposici\'on y uso de la Web
+#invsection|cybernannies|Screens as nannies|Pantallas usadas como ni\~neras
+#invsection|x2socNetworks|Exposure to social networks|Exposici\'on a redes sociales
+#invsection|Bullying|Bullying|Ciberacoso
+#invsection|paedophilia|Paedophilia: hunting our children|Pedofilia: al acecho de nuestros hijos
+#invsection|viography|Effects of violence and pornography|Efectos de violencia y pornograf\'ia
+#invsection|violence|Exposure and normalisation of violence|Exposici\'on y normalizaci\'on de violencia
+#invsection|dangerousLiasons|Illicit associations|Asociaciones il\'icitas
+#
+#invchapter|schoolingEffects|Tech \& Education|Impacto en la educaci\'on
+#invsection|clasroomTech|Classroom Technologies|Tecnolog\'ias en las aulas
+#invsection|positives|Positive aspects|Material de apoyo fuera del aula
+#invsection|negatives|Negative aspects|Donde la web no ayuda
+#invsection|USAexperience|The USA case|Resultados de estas experiencias
+#invsection|edumarket|The edu-market|El mercado de la educaci\'on
+##invsection|suggxions|Reflections and suggestions|Reflexiones y sugerencias
+#invsection|altEd|Alternative forms of Education|Otros canales de formaci\'on
+#invsection|anythingElse|After lockdown|Educaci\'on post lockdown
+#
+#invchapter|parentalduties|The role of parents|Responsabilidad de los padres
+#invsection|widetech|Devices that access \internet |Aparatos que dan acceso a \internet
+#invsection|spaceTime|Children Spaces|Espacios y tiempos en \internet.
+##invsection|Kinderbereiche|Children Spaces|Espacios para ni\~nos
+##invsection|whatToAccess|What to allow them to access and when|\oqm A qu\'e darles acceso y a qu\'e edad?
+##invsection|risks|What do we expose them to?|\oqm A qu\'e los exponemos?
+#invsection|parentalRestrictions|Parental restrictions|Restricciones Parentales
+##invsubsection|whiteBlackLists|White or black lists?|\oqm Usar listas blancas o listas negras?
+#
+#invchapter|humanmirror|Humanity's mirror|El espejo de la humanidad
+#invsection|exposureToIdeas|Zillions of ideas|Exposici\'on incontables ideas
+#invsection|selfExposure|Self exposure|Nuestro yo expuesto al mundo
+#invsection|rapidChange|Rapid change|Cambios acelerados
+#invsection|audience|The audience|La audiencia
+#invsection|reality|Reality, which reality?|Realidad, \oqm Cu\'al realidad\cqm
+#invsection|various|Other effects|Efectos varios
+##invsection|globalview|Global vision|Una visi\'on global
+##invsection|humansonline|Humans online|Las personas en l\'inea
+##invsection|whoarewe|Who are we?|\oqm Qui\'enes somos\cqm
+##invsection|ourselves|How are we online?|\oqm C\'omo somos en linea\cqm
+#
+##invchapter|kinderExpertieren|What the experts say|Lo que opinan los expertos
+#
+#invchapter|kinderconclusions|What then?|\oqm Qu\'e hacemos entonces?
+##invsection|parentaladvice|Advice to parents|Consejos para padres digitales
+#invsection|parapapas|Advice to parents|Consejos para padres digitales
+#invsection|legislation|The need to legislate|La necesidad de legislar para proteger
+#invsection|improving|What can we do to improve the \web?|\oqm C\'omo ser para mejorar la \web\cqm
+#

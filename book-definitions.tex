@@ -1,0 +1,347 @@
+%\newcounter{colouredItem}
+%\setcounter{colouredItem}{0}
+\global\def\vBlack{black}
+\global\def\vBlue{blue}
+\global\def\tcolor{black}
+\def\resetColor{\global\def\tcolor{black}}
+\def\eg{\textit{e.g.}}
+\def\ie{\textit{i.e.}}
+\def\tt{\texttt}
+\def\bf{\textbf}
+\def\it{\textit}
+\def\sc{\textsc}
+\def\rm{\textrm}
+%\def\punto{\vspace{1.3ex} \noindent$\odot$ }
+\def\punto{}
+\def\ceeand{\&\&}
+\def\control{^{}}
+\def\nada{}
+\def\ntilde{\~n}
+\def\oqm{?`}
+\def\cqm{?}
+\def\oxm{!`}
+\def\odq{``}
+\def\cdq{''}
+\def\cxm{!}
+\def\zindex#1{\index{#1}\bf{#1}}
+
+% general definitions, too many to have in the main document
+
+
+\newsavebox{\mybox}
+\newenvironment{Notes}
+{\begin{lrbox}{\mybox}\begin{minipage}{0.9\textwidth}}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\mybox}}}
+
+\newsavebox{\myfbox}
+\newenvironment{Caption}
+{\begin{lrbox}{\myfbox}\begin{minipage}{0.9\textwidth}}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\myfbox}}}
+ 
+\newsavebox{\mySLbox}
+\newenvironment{Sublim}
+{\hfill\begin{lrbox}{\mySLbox}\begin{minipage}{0.9\textwidth}\begin{flushright}}
+{\end{flushright}\end{minipage}\end{lrbox}\mbox{\usebox{\mySLbox}}}
+ 
+
+\newsavebox{\myGraybox}
+\newenvironment{graytext}
+{\hfill\begin{lrbox}{\myGraybox}\begin{minipage}{\textwidth}}
+{\end{minipage}\end{lrbox}\mbox{\usebox{\myGraybox}}}
+%{\end{minipage}\end{lrbox}\mbox{\myGraybox}}
+
+\newcommand{\myGrey}[1]{\textcolor{mygray}{#1}}
+ 
+
+\newenvironment{alteritem}{
+%  \medskip
+%\textcolor{green}{\textbf{\value{colouredItem}}} 
+%\textcolor{red}{\textbf{\tcolor }} 
+\ifx\tcolor\vBlack
+%    \textcolor{red}{is Black}
+   \global\def\tcolor{mygray}
+%   \renewcommand{\tcolor}{\vBlue}
+\else
+%    \textcolor{red}{is not Black}
+%   \global\def\tcolor{\vBlack}
+   \global\def\tcolor{black}
+%   \renewcommand{\tcolor}{\vBlack}
+\fi
+%\textcolor{purple}{\textbf{\tcolor }} 
+\begin{color}{\tcolor}
+}{
+\end{color}
+%\end{framed}
+%\end{color}
+%  \medskip
+  \smallskip
+}
+
+\NewEnviron{mynote}{%
+    \marginpar{\footnotemark}% marginal mark for the note
+    \footnotetext{{\color{blue}\BODY}}}[\par]
+
+\newcommand\notes[1]{%
+  \fbox{\begin{minipage}{0.9\textwidth}#1\end{minipage}}}
+  
+\renewcommand{\floatpagefraction}{.8}
+
+\newcommand\headfigure[1]{
+\noindent\includegraphics[width=\textwidth]{#1}}
+
+
+\newcommand\topFig[2]{
+\begin{figure}[t]
+\noindent\includegraphics[width=\textwidth]{#1}
+\caption*{#2}
+\end{figure}
+}
+
+\newcommand\tallFig[2]{
+\begin{figure}[t]
+\centerline{\includegraphics[height=0.65\textheight]{#1}}
+\caption{#2}
+\end{figure}
+}
+
+\newcommand\rawFig[2]{
+\begin{figure}[t]
+\centerline{\includegraphics[width=0.85\textwidth]{#1}}
+\caption{#2}
+\end{figure}
+}
+
+\newcommand\wideFig[2]{
+\begin{figure}[t]
+\noindent\includegraphics[width=\textwidth]{#1}
+\caption*{#2}
+\label{fig:#2}
+\end{figure}
+}
+ 
+\newcommand\fullFig[3]{
+\begin{figure}[t]
+\noindent\includegraphics[width=\textwidth]{#1}
+\caption*{#2 \label{#3}}
+\end{figure}
+}
+ 
+%%  This is just for proofreading, adding line numbering
+
+
+
+\renewcommand{\thefigure}{\hspace{-.333333em}}
+%or
+
+
+% definitions to 
+
+\def\oitem{\begin{alteritem}}
+\def\citem{\end{alteritem}}
+\def\parte{\part}
+\def\capitulo{\chapter}
+\def\seccion{\section}
+\def\subseccion{\subsection}
+%\def\zztop{\noindent\bf{#1}\\}
+\newcommand\zzbreak{
+   \vspace{\parskip}
+   \hrule}
+
+\newcommand\zzbefore{
+\noindent\bf{Antes:}\\
+}
+
+\newcommand\zzafter{
+\noindent\bf{Despu\'es:}\\
+}
+
+\newcommand\zzba[3]{
+%   \vskip 1em
+%   \hrule
+   
+\subsection{#1}
+\noindent\bf{Antes:} {#2}\\
+\noindent\bf{Despu\'es:} {#3}
+   }
+
+\newcommand\zzexample[1]{
+   \vskip 1em
+   \hrule
+   
+   \noindent{\sc{#1}}
+   }
+\newcommand\pindex[1]{
+\index{#1}\bf{#1}
+} 
+
+\newcommand\zindextwo[2]{
+#2\index{#1}
+} 
+
+\newcommand\zztop[1]{%
+\vskip 1em
+\centerline{\bf{#1}} }
+   
+\newcommand\zzleft[1]{%
+\noindent\bf{#1}\\}
+
+\newcommand\zzlefti[1]{%
+\noindent\zindex{#1}\\}
+
+\newcommand\invchapter[2]{
+\chapter[#1]{#1\label{#2}}
+%\chapter*[#1]{#1\label{#2}}
+%\addcontentsline{toc}{chapter}{#1}
+}
+
+\newcommand\invsectionS[3]{
+\section[#3]{#1\label{#2}}
+%\addcontentsline{toc}{section}{#1}
+}
+
+\newcommand\invsection[2]{
+\section[#1]{#1\label{#2}}
+%\section*{\underline{#1}}
+%\addcontentsline{toc}{section}{#1}
+%\markboth{#1}{#1}
+}
+
+\newcommand\subinvsection[1]{
+\subsection{#1}
+%\subsection*{#1}
+%\addcontentsline{toc}{subsection}{#1}
+%\markboth{#1}{#1}
+
+}
+
+%  \fbox{\begin{minipage}{0.9\textwidth}#1\end{minipage}}}
+
+\newcommand\sexy[1]{\S~\ref{#1}}
+
+\newcommand\mysection[1]{\noindent\scalebox{1.5}{\sc{#1:}}}
+\newcommand\subliminal[1]{\hfill\it{#1}}
+\newcommand\subliminaltt[1]{\hfill\tt{#1}}
+
+\newcommand\myIdea[1]{}
+%\newcommand\myIdea[1]{\hfill Subject: \bf{\underline{#1}}}
+%\newcommand\myIdea[1]{
+%   \vspace{0.5\parskip}
+%   \centerline{\rule{0.5\textwidth}{0.2pt}}}
+
+\newcommand\clip[1]{}
+
+% definitions for the giants
+\def\coronavirus{\it{coronavirus}}
+\def\amazon{\bf{Amazon}}
+\def\android{\bf{Android}}
+\def\apple{\bf{Apple}}
+\def\chrome{\tt{Chrome}}
+\def\fakebook{\bf{Facebook}}
+\def\fakenews{\sc{fake news}}
+\def\gmail{\bf{Gmail}}
+\def\google{\bf{Google}}
+\def\tiktok{\bf{TikTok}}
+\def\snapchat{\bf{Snapchat}}
+\def\instagram{\bf{Instagram}}
+\def\internet{Internet}
+\def\ipad{\bf{iPad}}
+\def\iphone{\bf{iPhone}}
+\def\linux{\tt{linux}}
+\def\linkedin{\bf{linkedIn}}
+\def\ibm{\tt{IBM}}
+\def\macos{\tt{macOS}}
+\def\microsoft{\bf{Microsoft}}
+\def\netflix{\bf{Netflix}}
+\def\powerpoint{\bf{PowerPoint}}
+\def\photoshop{\bf{PhotoShop}}
+\def\millennials{\it{millennials}}
+\def\telegram{\bf{Telegram}}
+\def\twitter{\bf{Twitter}}
+\def\usenet{\bf{Usenet}}
+\def\web{Web}
+\def\whatsapp{\bf{WhatsApp}}
+\def\wikipedia{\bf{Wikipedia}}
+\def\wikileaks{\bf{WikiLeaks}}
+\def\windows{\bf{Windows}}
+\def\tinder{\bf{Tinder}}
+\def\word{\bf{Word}}
+\def\yahoo{\bf{Yahoo!}}
+\def\fortnite{\bf{Fortnite}}
+\def\roblox{\bf{Roblox}}
+\def\youtube{\bf{YouTube}}
+\def\youtubekids{\bf{YouTube Kids}}
+\def\skype{\bf{Skype}}
+
+\def\xamazon{\zindex{Amazon}}
+\def\xandroid{\zindex{Android}}
+\def\xapple{\zindex{Apple}}
+\def\xchrome{\tt{Chrome}}
+\def\xfakebook{\zindex{Facebook}}
+\def\xgmail{\zindex{Gmail}}
+\def\xgoogle{\zindextwo{Google}{\bf{Google}}}
+\def\xinstagram{\zindex{Instagram}}
+\def\xinternet{\zindextwo{Internet}{Internet}}
+\def\xiphone{\zindex{iPhone}}
+\def\xlinux{\zindextwo{linux}{\tt{linux}}}
+\def\xibm{\tt{IBM}}
+\def\xmacos{\tt{macOS}}
+\def\xmicrosoft{\zindex{Microsoft}}
+\def\xnetflix{\zindex{Netflix}}
+\def\xpowerpoint{\zindex{PowerPoint}}
+\def\xtelegram{\zindex{Telegram}}
+\def\xtwitter{\zindex{Twitter}}
+\def\xusenet{\zindextwo{Usenet}{\bf{Usenet}}}
+\def\xweb{Web}
+\def\xwhatsapp{\zindex{WhatsApp}}
+\def\xwikipedia{\zindextwo{Wikipedia}{\bf{Wikipedia}}}
+\def\xwikileaks{\zindextwo{WikiLeaks}{\bf{WikiLeaks}}}
+\def\xwindows{\zindex{Windows}}
+\def\xword{\zindex{Word}}
+\def\xyoutube{\zindex{YouTube}}
+\def\xskype{\zindex{Skype}}
+\def\wifi{\bf{Wi-Fi}}
+
+
+\ifdefined\espanol
+\def\sphone{tel\'efono inteligente}
+\def\sphones{tel\'efonos inteligentes}
+\def\ai{\bf{Inteligencia Artificial}}
+\def\fakebook{\bf{Facebook}}
+\def\email{correo electr\'onico}
+\def\emails{correos electr\'onicos}
+\newcommand\chapy[1]{\bf{Cap\'itulo~\ref{#1}}}
+\def\twenties{a\~nos '20}
+\def\thirties{a\~nos '30}
+\def\forties{a\~nos '40}
+\def\fifties{a\~nos '50}
+\def\sixties{a\~nos '60}
+\def\seventies{a\~nos '70}
+\def\eighties{a\~nos '80}
+\def\nineties{a\~nos '90}
+\def\secq{siglo \sc{xv}}
+\def\secdss{siglo \sc{xvi}}
+\def\secds{siglo \sc{xvii}}
+\def\secdo{siglo \sc{xviii}}
+\def\secdn{siglo \sc{xix}}
+\def\secv{siglo \sc{xx}}
+\def\secvu{siglo \sc{xxi}}
+\def\lanube{\bf{la nube}}
+\def\Lanube{\bf{La nube}}
+\fi
+
+% These are definitions for english:
+\ifdefined\inglese
+\def\email{e-mail}
+\def\emails{e-mails}
+\def\sphone{smartphone}
+\def\sphones{smartphones}
+\def\ai{\bf{Artificial Intelligence}}
+\def\fakebook{\bf{Facebook}}
+\newcommand\chapy[1]{\bf{Chapter~\ref{#1}}}
+\def\fifties{50s}
+\def\sixties{60s}
+\def\seventies{70s}
+\def\eighties{80s}
+\def\nineties{90s}
+\fi
+

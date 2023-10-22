@@ -1,0 +1,1022 @@
+#!/Users/pfo/anaconda2/bin/python
+#bangBang /usr/bin/python
+
+# A feature which would be desirable is to have the capacity to "import"
+# photos from entries in the chapters, not just in the wok file.
+# In fact, the wok file should not be the place to import images, as it
+# will remain particularly busy
+#from os.path import expanduser
+#from os import walk
+import os
+import sys
+import time
+import shutil
+
+args = sys.argv[1:];
+for arg in args:
+    print "argument: ", arg
+
+nargs = len(args)
+if nargs < 3:
+    print "Usage: bookmaker structure-list destination-dir content-dir\n";
+    sys.exit()
+#print "Nargs: ", nargs
+ifile = args[0]
+destination = args[1]
+if destination == "noWeb":
+    pages = None
+    images = None
+else:
+    pages = "{}/pages".format(destination)
+    images = "{}/pages/figures".format(destination)
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+
+    if not os.path.exists(pages):
+        os.makedirs(pages)
+
+    if not os.path.exists(images):
+        print "MAKING IMAGES", images
+        os.makedirs(images)
+
+repo = "../imageRepo"
+print "PAGES: ", pages
+contentsDir = args[2]
+if not os.path.isfile(ifile):
+    print ifile, "does not exist. Quiting"
+    sys.exit()
+
+if not os.path.exists(contentsDir):
+    print contentsDir, "does not exist. Creating"
+    os.makedirs(contentsDir)
+#    sys.exit()
+
+
+inRepo = os.listdir(repo)
+#print "In repo: ", inRepo
+
+repod = {}
+for rep in inRepo:
+    repod[rep] = True
+# just for fun, copy the definitely.css from the main trunk into
+# 'destination' and 'pages'
+cssSrc = "../definitely.css"
+
+#shutil.copy2(cssSrc, destination)
+#shutil.copy2(cssSrc, pages)
+
+mindGames = {"inglese":"mind games", "espanol":"ideas torcidas"}
+partContent = {"inglese":"Generic content", "espanol":"Contenido generico"}
+#    # file does not exist, creating it
+
+# Now, read the file and store results as a set of lines, we'll analyse them
+# later on
+
+inputLines = []
+
+def filterEnglish(line):
+    if "url|" in line:
+        parts = line.split("|")
+        line = "<a target=\"_blank\" href=\"{}\">{}</a>".format(parts[2], parts[1])
+    return line.rstrip("\n");
+
+def filterSpanish(line):
+    if "url|" in line:
+        parts = line.split("|")
+        line = "<a target=\"_blank\" href=\"{}\">{}</a>".format(parts[2], parts[1])
+    l = line.rstrip("\n").replace("\\'a", "&aacute;").replace("\\'e", "&eacute;").replace("\\'i", "&iacute;").replace("\\'o", "&oacute;").replace("\\'u", "&uacute;").replace("?`", "&iquest;").replace("!`", "&iexcl;").replace("\~n", "&ntilde;").replace("\~N", "&Ntilde;").replace("\\'A","&Aacute;").replace("\\'E","&Eacute;").replace("\'I","&Iacute;").replace("\\'O","&Oacute;").replace("\\'U","&Uacute;")
+#    print "SpanishFilter\t", line, list(line), "\n\t\t", l
+    return l
+
+filtro = { "inglese":filterEnglish, "espanol":filterSpanish }
+
+def createFile(infile, handle, dicto, cdir):
+    nFile = open(infile,'w')
+    parte = dicto[handle]
+
+    typo = parte["type"]
+    for lan in dicto["languages"]:
+        headFigure = "%\\headfigure{{images/{}.jpg}}\n".format(handle)
+        description = [
+         headFigure,
+         "%\\subliminal{{{}}}\n".format(mindGames[lan]),
+         "\\begin{comment}",
+         "+webDescription",
+         partContent[lan],
+         "-webDescription", "\\end{comment}\n\n"
+        ]
+        nFile.write("\\ifdefined\\{}\n\n".format(lan))
+        if "inv" in typo:
+            nFile.write("\\{}{{{}}}{{{}}}\n\n".format(typo, parte["title"][lan], handle))
+        else:
+            nFile.write("\\{}{{{}\\label{{{}}}}}\n\n".format(typo, parte["title"][lan], handle))
+#        nFile.write("\\{}{{{}\\label{{{}}}}}\n\n".format(typo, parte["title"][lan], handle))
+#        if typo == "part":
+#            nFile.write("\\capitulo{{ {} }}\n\n".format(parte["title"][lan]))
+        for dline in description:
+            nFile.write("{}\n".format(dline))
+        nFile.write("\\fi\n\n")
+    nFile.close()
+#                fffile.write("{}\n".format(l))
+
+def createEntry(dikt, what, hand, langs, values):
+    dikt[hand] = {}
+    dikt[hand]["title"] = {}
+    dikt[hand]["type"] = what
+    i = 0
+    for lan in langs:
+        dikt[hand]["title"][lan] = values[i]
+        i += 1
+#    print hand, dikt[hand]
+
+
+def fileExaminer2(handle, dicto, cdir):
+    __name__ = "fileExaminer2"
+    inFile = "{}/{}.tex".format(cdir, handle)
+    if not os.path.exists(cdir):
+        os.makedirs(cdir)
+#    print __name__, "C-dir: ", cdir
+    inputLines.append("\\input{{{}}}".format(inFile))
+    if not os.path.isfile(inFile):
+#        print __name__, inFile, "does not exist. Creating"
+        createFile(inFile, handle, dicto, cdir)
+    else:
+        return
+#        print __name__, inFile, "exists. Reading"
+        pfile = open(inFile,"r")
+        inlines = pfile.readlines()
+        pfile.close()
+        element = "whatever"
+
+        lignes = []
+        language = "swahili"
+        on = {"whatever":False}
+        elemento = "whatever"
+#        print __name__, "Languages:", dicto["languages"]
+        for lan in dicto["languages"]:
+            filtrus = filtro[lan]
+            laCaption = "caption{}".format(lan)
+            on[laCaption] = False
+            laScript = "script{}".format(lan)
+            laWeb = "webDescription{}".format(lan)
+            on[laWeb] = False
+            on[laScript] = False
+            laFigure = "figurez{}".format(lan)
+            laBio = "bioz{}".format(lan)
+#            print __name__, "Language:", lan
+            nLine = 0
+            for line in inlines:
+                ligne = line.rstrip("\n")
+                if "ifdefined" in ligne and lan in ligne:
+#                    print __name__, "ifdefined", lan, ligne, nLine, ligne[0]
+                    language = lan
+                elif "ifdefined" in ligne and lan not in ligne:
+#                    print __name__, "useless ifdefined", lan, ligne, nLine
+                    language = "whatever"
+    #            elif "\\else" in ligne:
+#                elif "ifdefined" in ligne and l2 in ligne:
+#                    language = l2
+#                for element in begIncludables:
+#                    escape = False
+#                    if element in ligne and language == lan:
+#                        on[element] = True
+##                    print __name__, "Spotted +webDescription", lan, nLine
+#                        if element not in dicto[handle].keys():
+#                            dicto[handle][element] = {}
+#                        dicto[handle][element][language] = []
+#                        escape = True
+#                        break
+#                if escape:
+#                    break
+#                for element in endIncludables:
+#                    escape = False
+#                    if element in ligne and language == lan:
+#                        on[element] = False
+#                        escape = True
+#                        break
+#                if escape:
+#                    break
+                elif "+webDescription" in ligne and language == lan:
+                    element = "webDescription"
+                    elemento = "webDescription{}".format(lan)
+                    laWeb = "webDescription{}".format(lan)
+                    on[laWeb] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    dicto[handle][element][language] = []
+    
+                elif "-webDescription" in ligne and language == lan:
+                    on[elemento] = False
+                    on[laWeb] = False
+                elif "+figure" in ligne and language == lan:
+                    (key, figID) = ligne.split()
+#                    print "Starting to define figure ", lan, figID#, handle
+                    element = "figurez"
+                    elemento = laFigure
+                    on[elemento] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    if language not in dicto[handle][element]:
+                        dicto[handle][element][language] = []
+#                        print "creating ", handle, element, language
+                    figure = {"id": figID, "anci":[] }
+                    caption = []
+                    script = []
+                    nImages = 0
+                elif "-figure" in ligne and language == lan:
+#                    on[elemento] = False
+#                    on["figure{}".format(lan)] = False
+                    on[laFigure] = False
+                    dicto[handle]["figurez"][language].append(figure)
+                elif "+biog" in ligne and language == lan:
+                    (key, figID) = ligne.split()
+#                    print "Starting to define Bio ", lan, figID, handle
+                    element = "biozgraphy"
+                    elemento = laBio
+                    on[elemento] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    if language not in dicto[handle][element]:
+                        dicto[handle][element][language] = []
+#                        print "creating ", handle, element, language
+                    figure = {"id": figID}
+                    caption = []
+                    style = "vanilla"
+                    script = []
+                elif "-biog" in ligne and language == lan:
+#                    on[elemento] = False
+#                    on["figure{}".format(lan)] = False
+                    on[laBio] = False
+                    dicto[handle]["biozgraphy"][language].append(figure)
+#                    print "Biography completed", figure
+                elif "+caption" in ligne and language == lan:
+                    if "bio" in ligne:
+                        style = "bio"
+                        p = ligne.split(" ")
+                        if len(p) > 2:
+                            header = " ".join(p[2:])
+                        else:
+                            header = None
+                    else:
+                        p = ligne.split(" ")
+                        if len(p) > 1:
+                            header = " ".join(p[1:])
+                        else:
+                            header = None
+                        style = "vanilla"
+                    element = "caption"
+                    elemento = "caption{}".format(lan)
+                    on[laCaption] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+#                    dicto[handle][element][language] = []
+    
+                elif "-caption" in ligne and language == lan:
+                    on[laCaption] = False
+#                    dicto[handle][element][language] = caption
+                    figure["caption"] = caption
+                    figure["style"] = style
+                    try:
+                        figure["figHead"] = header
+                    except:
+                        figure["figHead"] = None
+                elif "+script" in ligne and language == lan:
+                    element = "script"
+                    elemento = "script{}".format(lan)
+                    on[laScript] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    dicto[handle][element][language] = []
+    
+                elif "-script" in ligne and language == lan:
+                    on["script{}".format(lan)] = False
+                    figure["content"] = script
+                elif "+image" in ligne and language == lan:
+                    nImages += 1
+                    p = ligne.split()
+                    key = p[0]
+                    link = p[1]
+                    try:
+                        href = p[2]
+                    except:
+                        href = None
+#                    (key, link) = ligne.split()
+                    if link in repod:
+                        src = "{}/{}".format(repo, link)
+                        dst = "{}/{}".format(images, link)
+                        if not os.path.isfile(dst):
+                            shutil.copy2(src, dst)
+                        linko = "figures/{}".format(link)
+                    else:
+                        src = "{}/{}".format(repo, "mia.jpg")
+                        dst = "{}/{}".format(images, "mia.jpg")
+                        if not os.path.isfile(dst):
+                            shutil.copy2(src, dst)
+                        linko = "figures/mia.jpg"
+                            
+                    script.append("<img style=\"border:5px solid black\" src=\"{}\" width=\"90%\" alt=\"{}\">".format(linko, link))
+                    try:
+                        a = figure["anci"]
+                    except:
+                        figure["anci"] = []
+
+                    figure["anci"].append({"src":linko, "iName":link, "href":href})
+                    figure["content"] =  script
+                elif "+file" in ligne and language == lan:
+                    (key, source) = ligne.split()
+#                    print "File invoking detected", source
+                    if os.path.isfile(source):
+                        sfile = open(source,"r")
+                        slines = sfile.readlines()
+                        sfile.close()
+                        script.extend(slines)
+                        figure["content"] =  slines
+#                        print slines
+                    else:
+                        figure["content"] =  ["file {} not found".format(source)]
+                else:
+                    if on[laCaption]:
+#                        print "Capturing: Caption", ligne
+                        if len(ligne) == 0:
+                            caption.append("<p>")
+                        caption.append(filtrus(ligne))
+                    elif on[laScript]:
+#                        print "Capturing: Script", ligne
+                        script.append(filtrus(ligne))
+                    elif on[laWeb]:
+#                        print element
+                        if len(ligne) == 0:
+                            dicto[handle][element][language].append("<p>")
+                        dicto[handle][element][language].append(filtrus(ligne))
+                    elif on[elemento]:
+#                        print "Capturing:", elemento
+                            
+                        dicto[handle][element][language].append(filtrus(ligne))
+                nLine += 1
+                
+        
+    pass
+
+def fileExaminer(handle, dicto, cdir):
+    __name__ = "fileExaminer"
+    inFile = "{}/{}.tex".format(cdir, handle)
+    print __name__, "cdir: ", cdir
+    inputLines.append("\\input{{{}}}".format(inFile))
+    if not os.path.isfile(inFile):
+#        print __name__, inFile, "does not exist. Creating"
+        createFile(inFile, handle, dicto, cdir)
+    else:
+#        print __name__, inFile, "exists. Reading"
+        pfile = open(inFile,"r")
+        inlines = pfile.readlines()
+        pfile.close()
+        element = "whatever"
+
+        lignes = []
+        language = "swahili"
+        on = {"whatever":False}
+        elemento = "whatever"
+#        print __name__, "Languages:", dicto["languages"]
+        for lan in dicto["languages"]:
+            filtrus = filtro[lan]
+            laCaption = "caption{}".format(lan)
+            on[laCaption] = False
+            laScript = "script{}".format(lan)
+            laWeb = "webDescription{}".format(lan)
+            on[laWeb] = False
+            on[laScript] = False
+            laFigure = "figurez{}".format(lan)
+            laBio = "bioz{}".format(lan)
+#            print __name__, "Language:", lan
+            nLine = 0
+            for line in inlines:
+                ligne = line.rstrip("\n")
+                if "ifdefined" in ligne and lan in ligne:
+#                    print __name__, "ifdefined", lan, ligne, nLine, ligne[0]
+                    language = lan
+                elif "ifdefined" in ligne and lan not in ligne:
+#                    print __name__, "useless ifdefined", lan, ligne, nLine
+                    language = "whatever"
+    #            elif "\\else" in ligne:
+#                elif "ifdefined" in ligne and l2 in ligne:
+#                    language = l2
+#                for element in begIncludables:
+#                    escape = False
+#                    if element in ligne and language == lan:
+#                        on[element] = True
+##                    print __name__, "Spotted +webDescription", lan, nLine
+#                        if element not in dicto[handle].keys():
+#                            dicto[handle][element] = {}
+#                        dicto[handle][element][language] = []
+#                        escape = True
+#                        break
+#                if escape:
+#                    break
+#                for element in endIncludables:
+#                    escape = False
+#                    if element in ligne and language == lan:
+#                        on[element] = False
+#                        escape = True
+#                        break
+#                if escape:
+#                    break
+                elif "+webDescription" in ligne and language == lan:
+                    element = "webDescription"
+                    elemento = "webDescription{}".format(lan)
+                    laWeb = "webDescription{}".format(lan)
+                    on[laWeb] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    dicto[handle][element][language] = []
+    
+                elif "-webDescription" in ligne and language == lan:
+                    on[elemento] = False
+                    on[laWeb] = False
+                elif "+figure" in ligne and language == lan:
+                    (key, figID) = ligne.split()
+#                    print "Starting to define figure ", lan, figID#, handle
+                    element = "figurez"
+                    elemento = laFigure
+                    on[elemento] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    if language not in dicto[handle][element]:
+                        dicto[handle][element][language] = []
+#                        print "creating ", handle, element, language
+                    figure = {"id": figID, "anci":[] }
+                    caption = []
+                    script = []
+                    nImages = 0
+                elif "-figure" in ligne and language == lan:
+#                    on[elemento] = False
+#                    on["figure{}".format(lan)] = False
+                    on[laFigure] = False
+                    dicto[handle]["figurez"][language].append(figure)
+                elif "+biog" in ligne and language == lan:
+                    (key, figID) = ligne.split()
+#                    print "Starting to define Bio ", lan, figID, handle
+                    element = "biozgraphy"
+                    elemento = laBio
+                    on[elemento] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    if language not in dicto[handle][element]:
+                        dicto[handle][element][language] = []
+#                        print "creating ", handle, element, language
+                    figure = {"id": figID}
+                    caption = []
+                    style = "vanilla"
+                    script = []
+                elif "-biog" in ligne and language == lan:
+#                    on[elemento] = False
+#                    on["figure{}".format(lan)] = False
+                    on[laBio] = False
+                    dicto[handle]["biozgraphy"][language].append(figure)
+#                    print "Biography completed", figure
+                elif "+caption" in ligne and language == lan:
+                    if "bio" in ligne:
+                        style = "bio"
+                        p = ligne.split(" ")
+                        if len(p) > 2:
+                            header = " ".join(p[2:])
+                        else:
+                            header = None
+                    else:
+                        p = ligne.split(" ")
+                        if len(p) > 1:
+                            header = " ".join(p[1:])
+                        else:
+                            header = None
+                        style = "vanilla"
+                    element = "caption"
+                    elemento = "caption{}".format(lan)
+                    on[laCaption] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+#                    dicto[handle][element][language] = []
+    
+                elif "-caption" in ligne and language == lan:
+                    on[laCaption] = False
+#                    dicto[handle][element][language] = caption
+                    figure["caption"] = caption
+                    figure["style"] = style
+                    try:
+                        figure["figHead"] = header
+                    except:
+                        figure["figHead"] = None
+                elif "+script" in ligne and language == lan:
+                    element = "script"
+                    elemento = "script{}".format(lan)
+                    on[laScript] = True
+                    if element not in dicto[handle].keys():
+                        dicto[handle][element] = {}
+                    dicto[handle][element][language] = []
+    
+                elif "-script" in ligne and language == lan:
+                    on["script{}".format(lan)] = False
+                    figure["content"] = script
+                elif "+image" in ligne and language == lan:
+                    nImages += 1
+                    p = ligne.split()
+                    key = p[0]
+                    link = p[1]
+                    try:
+                        href = p[2]
+                    except:
+                        href = None
+#                    (key, link) = ligne.split()
+                    if link in repod:
+                        src = "{}/{}".format(repo, link)
+                        dst = "{}/{}".format(images, link)
+                        if not os.path.isfile(dst):
+                            shutil.copy2(src, dst)
+                        linko = "figures/{}".format(link)
+                    else:
+                        src = "{}/{}".format(repo, "mia.jpg")
+                        dst = "{}/{}".format(images, "mia.jpg")
+                        if not os.path.isfile(dst):
+                            shutil.copy2(src, dst)
+                        linko = "figures/mia.jpg"
+                            
+                    script.append("<img style=\"border:5px solid black\" src=\"{}\" width=\"90%\" alt=\"{}\">".format(linko, link))
+                    try:
+                        a = figure["anci"]
+                    except:
+                        figure["anci"] = []
+
+                    figure["anci"].append({"src":linko, "iName":link, "href":href})
+                    figure["content"] =  script
+                elif "+file" in ligne and language == lan:
+                    (key, source) = ligne.split()
+#                    print "File invoking detected", source
+                    if os.path.isfile(source):
+                        sfile = open(source,"r")
+                        slines = sfile.readlines()
+                        sfile.close()
+                        script.extend(slines)
+                        figure["content"] =  slines
+#                        print slines
+                    else:
+                        figure["content"] =  ["file {} not found".format(source)]
+                else:
+                    if on[laCaption]:
+#                        print "Capturing: Caption", ligne
+                        if len(ligne) == 0:
+                            caption.append("<p>")
+                        caption.append(filtrus(ligne))
+                    elif on[laScript]:
+#                        print "Capturing: Script", ligne
+                        script.append(filtrus(ligne))
+                    elif on[laWeb]:
+#                        print element
+                        if len(ligne) == 0:
+                            dicto[handle][element][language].append("<p>")
+                        dicto[handle][element][language].append(filtrus(ligne))
+                    elif on[elemento]:
+#                        print "Capturing:", elemento
+                            
+                        dicto[handle][element][language].append(filtrus(ligne))
+                nLine += 1
+                
+        
+    pass
+
+mfile = open(ifile,"r")
+ilines = mfile.readlines()
+mfile.close()
+
+lines = []
+for line in ilines:
+    if "#" in line:
+        continue
+    lines.append(line.rstrip("\n"))
+
+book = {}
+parts = []
+nlines = len(lines)
+nleft = nlines
+i = 0
+partN = 0
+chapN = 0
+handles = {}
+pp = "book"
+pc = ""
+ps = ""
+book["things"] = []
+elements = {}
+newWin = 'target="_blank"'
+#while nleft > 0:
+#    line = lines[i]
+for line in lines:
+    if len(line) < 3:
+        continue
+#    print line
+    if "|" in line:
+        r = line.split("|")
+        what = r[0]
+        handy = r[1]
+#        if handy == "summary":
+#            continue
+        p = r[1:]
+        q = r[2:]
+#        print q
+    else:
+        what = line
+    
+    if what == "book_title":
+        createEntry(book, what, handy, languages, q)
+#            "en": p[1], "sp": p[2]}
+#        book["title_sp"] = p[2]
+    elif what == "book_languages":
+        languages = q
+        print "Languages: ", languages
+        book[handy] = languages
+    elif what == "book_author":
+        book[handy] = q[0]
+    elif what == "book_css":
+        book[handy] = q[0]
+    elif what == "book_js":
+        book[handy] = q[0]
+    elif what == "book_webpage":
+        print "book_webpage", p
+        createEntry(book, what, handy, languages, q)
+#        book["webpage"] = { "en": p[1], "sp": p[2]}
+    elif what == "part":
+        ph = handy
+        pp = handy
+        book["things"].append(ph)
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, ph, languages, q)
+        fileExaminer(ph, book, contentsDir)
+    elif what == "chapter":
+        pc = handy
+        ph = "{}-{}".format(pp, pc)
+        chapPath = "{}/{}/{}".format(contentsDir,pp, handy)
+        book["things"].append( handy )
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, handy, languages, q)
+        fileExaminer2(handy, book, chapPath)
+    elif what == "invchapter":
+        pc = handy
+        ph = "{}-{}".format(pp, pc)
+        book["things"].append( handy )
+        chapPath = "{}/{}/{}".format(contentsDir,pp, handy)
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, handy, languages, q)
+#        fileExaminer(ph, book, contentsDir)
+#        fileExaminer(handy, book, chapPath)
+        fileExaminer2(handy, book, chapPath)
+    elif what == "section":
+        ps = handy
+        ph = "{}-{}-{}".format(pp, pc, ps)
+        book["things"].append( handy )
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, handy, languages, q)
+        fileExaminer2(handy, book, chapPath)
+    elif what == "invsection":
+        ps = handy
+        ph = "{}-{}-{}".format(pp, pc, ps)
+        book["things"].append( handy )
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, handy, languages, q)
+#        fileExaminer(ph, book, contentsDir)
+        fileExaminer2(handy, book, chapPath)
+    elif what == "invsubsection":
+        pss = handy
+        ph = "{}-{}-{}-{}".format(pp, pc, ps, pss)
+        book["things"].append( ph )
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, ph, languages, q)
+        fileExaminer2(ph, book, contentsDir)
+    elif what == "subsection":
+        pss = handy
+        ph = "{}-{}-{}-{}".format(pp, pc, ps, pss)
+        book["things"].append( ph )
+#        book[ph] = { "title": {"en": p[2], "sp":p[3]}, "type": what}
+        createEntry(book, what, ph, languages, q)
+        fileExaminer(ph, book, contentsDir)
+    elif "beg-lang-en" in line:
+        filtrus = filtro["inglese"]
+        language = "english"
+    elif "beg-lang-sp" in line:
+        filtrus = filtro["espanol"]
+        language = "espanol"
+    elif "-end-lang-en" in line:
+#        language = "en"
+        figure["caption"]["inglese"] = elements["caption"]
+        figure["content"]["inglese"] = elements["content"]
+#        print "end of english", figure
+        elements = {}
+    elif "-end-lang-sp" in line:
+#        print "end of spanish", figure
+#        language = "sp"
+        figure["caption"]["espanol"] = elements["caption"]
+        figure["content"]["espanol"] = elements["content"]
+#        print "end of spanish", figure
+        elements = {}
+    elif "end-caption" in line:
+#        print "Located end-caption >>", line
+        pass
+    elif "-end-content" in line:
+#        print "Located end-content >>", line
+        pass
+    elif "beg-caption" in line:
+        element = "caption"
+        elements[element] = []
+    elif "beg-content" in line:
+        element = "content"
+        elements[element] = []
+    elif "-file" in line:
+#        print "Located -file >>", line
+        elements["content"] = ["to be read from file"]
+#        pass
+    elif "-begin-figure" in line:
+        parts = line.split(" ")
+#        print "Figure located:" , parts[1]
+#        figure = {}  # a dictionary to put everything related to the figure
+        figure = { "caption": {}, "content": {}, "handle":parts[1] }
+#        figure = { "content": {} }
+        captions = {}
+    elif "-end-figure" in line:
+#        print "Figure-end located:", figure
+        if "figures" not in book[ph].keys():
+            book[ph]["figures"] = []
+        book[ph]["figures"].append(figure)
+    else:
+#        print "adding<< ", line, " >> to ", element
+        try:
+            elements[element].append(filtrus(line))
+        except:
+            print "Error in line ", i+1, line
+            print "Element {} not recognised in line {}".format(element, i+1)
+            sys.exit("Shit!!")
+    i += 1
+    nleft -= 1
+
+skeleto = open("{}/backbones.tex".format(contentsDir),'w')
+for line in inputLines:
+    skeleto.write("{}\n\n".format(line))
+skeleto.close()
+
+if pages is None:
+    print "Quiting without doing web pages"
+    sys.exit()
+
+#print "creating ", book["webpage"]
+doctype = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"
+linkcss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"{}\">".format(book["css"])
+prefix = { "inglese": "en", "espanol": "sp"}
+indice = { "inglese": "Index", "espanol": "\'Indice"}
+for lang in book["languages"]:
+    filtrus = filtro[lang]
+    print "Working on ", lang
+    n = []
+    n.append(doctype)
+    n.append("<html>")
+    n.append("<head>")
+    n.append("<title>{}</title>\n\n".format(book["title"]["title"][lang]))
+    n.append(linkcss)
+
+    n.append("</head>")
+    n.append("<body>")
+#    n.append("<Cindy>\n")
+    s = []
+    h = []
+    for y in n[0:7]:
+        s.append(y)
+        h.append(y)
+    s.append("<div class=\"titlebox\">")
+    s.append("{}<br>".format(book["title"]["title"][lang]))
+    s.append("<span class=\"s_author\">{}</span><br>".format(book["author"]))
+    s.append("</div>")
+    h.append("<div class=\"titlebox\">")
+    h.append("{}".format(book["title"]["title"][lang]))
+#    h.append("{}".format(book["author"]))
+    h.append("</div>")
+    nt = 0
+    nThings = len(book["things"]) -1
+    thingies =  book["things"]
+    for unit in book["things"]:
+        if "summary" in unit:
+            nt+= 1
+            continue
+#        print "UNIT: ", unit
+        if nt == 0:
+            previous = None
+        else:
+            if "summary" in thingies[nt-1]:
+                previous = thingies[nt-2]
+            else:
+                previous = thingies[nt-1]
+        if nt < nThings:
+#            print "NEXTO: ", thingies[nt+1], thingies[nt+2]
+            if "summary" in thingies[nt+1]:
+                nexto = thingies[nt+2]
+            else:
+                nexto = thingies[nt+1]
+        else:
+            nexto = None
+        indexName = "sa_{}".format(book["webpage"]["title"][lang])
+        bunit = book[unit]
+#        print "BUNIT:", bunit
+        ttypo = bunit["type"]
+        nb = []
+        nb.append("<table width=\"100%\"><tr>")
+        nb.append("<td align=\"left\" width=\"40%\">")
+        if previous is not None:
+            nb.append("<a href=\"{}_{}.html\">{}</a>".format(prefix[lang],
+            previous, filtrus(book[previous]["title"][lang]) ))
+        nb.append("</td><td align=\"center\">")
+        nb.append("<a href=\"../{}\">{}</a>".format(indexName, filtrus(indice[lang])))
+        nb.append("</td><td align=\"right\" width=\"40%\">")
+        if nexto is not None:
+            nb.append("<a href=\"{}_{}.html\">{}</a>".format(prefix[lang],
+                nexto, filtrus(book[nexto]["title"][lang]) ))
+        nb.append("</td></tr></table>")
+        unitName = "pages/{}_{}.html".format(prefix[lang], unit)
+#        print "basics: ", unit, bunit, unitName
+#        print "Previous: ", previous, "next: ", nexto
+        p = []
+        p.extend(nb)
+#        p.append("<div id=\"{}\" class=\"c_{}\">{}</div>\n\n".format(unit,
+#                ttypo, filtrus(bunit["title"][lang])))
+
+#        n.append("<div id=\"{}\" class=\"{}\">{}</div>\n\n".format(unit,
+#                ttypo, filtrus(bunit["title"][lang])))
+
+#        s.append("<a href=\"{}\" id=\"{}\" class=\"{}\">{}</a><br>\n".format(
+#                unitName, unit, ttypo, filtrus(bunit["title"][lang])))
+        s.append("<a href=\"{}\" class=\"s_{} n_{}\">{}</a><br>\n".format(
+                unitName, ttypo, ttypo, filtrus(bunit["title"][lang])))
+        if "webDescription" in bunit:
+                ku = []
+                ku.append("<center><table width=\"80%\"><tr><td class=\"explain\">")
+                ku.append("<div id=\"{}\" class=\"c_{}\">{}</div>\n\n".format(unit,
+                            ttypo, filtrus(bunit["title"][lang])))
+                for content in bunit["webDescription"][lang]:
+                    ku.append("{}".format(content))
+                ku.append("</td></tr></table></center><br><br>")
+
+#                ku.append("<center><div align=\"center\" class=\"explain\">")
+#                for content in bunit["webDescription"][lang]:
+#                    ku.append("{}".format(content))
+#                ku.append("</div></center><br><br>")
+
+                n.extend(ku)
+                p.extend(ku)
+        if "figurez" in bunit:
+#            if lang in bunit["figurez"]:
+#            print "The figures: ", lang, bunit["figurez"].keys()
+#            print "la figures: ", lang, bunit["figurez"][lang]
+            try:
+                for figo in  bunit["figurez"][lang]:
+#                    print "-Eine Figure:", figo["caption"]
+#                    for key in figo.keys():
+#                        print "--Eine\t", key, figo[key]
+                    ku = []
+                    ansi = figo["anci"]
+#                    print "ANCI[] = ", ansi
+                    nImages = len(ansi)
+                    if nImages == 0:
+                        klasse = "dufoBreakTable"
+                        ku.append("<table align=\"center\" id=\"{}\" class=\"{}\">".format(figo["id"], klasse))
+                        ku.append("<tr><td class=\"tdleft\">")
+#                        ku.append("<tr><td>")
+#                        print "figHead: ", figo["figHead"]
+                        try:
+                            header = figo["figHead"]
+                            if header is None:
+                                pass
+                            else:
+                                ku.append("<span class=\"sectioner\">{}</span><p>".format(filtrus(header)))
+                        except:
+                            pass
+
+                        if "caption" in figo:
+                            for caption in figo["caption"]:
+                                ku.append("{}".format(caption))
+                        ku.append("</td></tr>\n</table>\n<br><br>\n")
+                        n.extend(ku)
+                        p.extend(ku)
+                        continue
+
+#                    print "Style:", figo["style"]
+                    if figo["style"] == "bio":
+                        klasse = "dufoBioTable"
+                        ku.append("<table align=\"center\" id=\"{}\" class=\"{}\">".format(figo["id"], klasse))
+                        ku.append("<tr><td style=\"text-align:left\">")
+                        try:
+                            header = figo["figHead"]
+                            ku.append("<b>{}</b><p>".format(header))
+                        except:
+                            pass
+                        # TODO change the definition of "content" to just be
+                        # the image name, we'll handle how the image is
+                        # rendered here
+#                    script.append("<img style=\"border:5px solid black\" src=\"{}\" width=\"90%\" alt=\"{}\">".format(linko, link))
+#                    figure["anci"] = {"src":linko, "iName":link, "href":href}
+                        ansi = figo["anci"]
+#                        print "ANSI: ", ansi
+                        for anci in ansi:
+                            if anci["href"] is None:
+                                stylo = "style=\"float:right;width:50%;margin-left:5px;border:3px solid white\""
+                                ku.append("<img {} src=\"{}\"  alt=\"{}\">".format(stylo, anci["src"], anci["iName"]))
+                            else:
+                                stylo = "style=\"float:right;width:50%;margin-left:5px; border:3px solid white\""
+                                ku.append("<a href=\"{}\" {}><img {} src=\"{}\" alt=\"{}\"></a>".format(anci["href"], newWin, stylo, anci["src"], anci["iName"]))
+
+
+                        if "caption" in figo:
+                            for caption in figo["caption"]:
+                                ku.append("{}".format(caption))
+                        ku.append("</td></tr>\n</table>\n<br><br>\n")
+                    else:
+                        klasse = "dufoTable"
+                        ku.append("<table align=\"center\" id=\"{}\" class=\"{}\">".format(figo["id"], klasse))
+                        ku.append("<tr><td>")
+                        try:
+                            header = figo["figHead"]
+                            if header is None:
+                                pass
+                            else:
+                                ku.append("<span class=\"subject\">{}</span><p>".format(filtrus(header)))
+                        except:
+                            pass
+                        # TODO change the definition of "content" to just be
+                        # the image name, we'll handle how the image is
+                        # rendered here
+#                        anci = figo["anci"]
+                        ansi = figo["anci"]
+#                        print "ANSI: ", ansi
+                        # these are the figures
+                        for anci in ansi:
+                            if anci["href"] is None:
+                                ku.append("<img style=\"border:5px solid black\" src=\"{}\" width=\"90%\" alt=\"{}\">".format(anci["src"], anci["iName"]))
+                            else:
+                                ku.append("<a href=\"{}\" {}><img style=\"border:5px solid black\" src=\"{}\" width=\"90%\" alt=\"{}\"></a>".format(anci["href"], newWin, anci["src"], anci["iName"]))
+
+#                        if "content" in figo:
+#                            for content in figo["content"]:
+#                                ku.append("{}".format(content))
+
+                        ku.append("</td></tr>\n<tr><td class=\"tdleft\">")
+                        if "caption" in figo:
+                            for caption in figo["caption"]:
+                                ku.append("{}".format(caption))
+                        ku.append("</td></tr>\n</table>\n<br><br>\n")
+
+                    n.extend(ku)
+                    p.extend(ku)
+            except:
+                pass
+        if "figures" in bunit:
+            counter = 1
+#            print "Odin The figures: "#, bunit["figures"].keys()
+            for fig in bunit["figures"]:
+#                print "Una element: ", fig
+                ku = []
+                ku.append("<table align=\"center\" id=\"{}\" class=\"dufoTable\">".format(fig["handle"]))
+                ku.append("<tr><td")
+                for content in fig["content"][lang]:
+                    ku.append("{}".format(content))
+                ku.append("</td></tr>\n<tr><td class=\"tdleft\">")
+                for caption in fig["caption"][lang]:
+                    ku.append("{}".format(caption))
+                ku.append("</td></tr>\n</table>\n<br><br>\n")
+
+                n.extend(ku)
+                p.extend(ku)
+
+        p.extend(nb)
+        ofile = "{}/{}".format(destination,unitName)
+#        print "creating ", ofile
+        nFile = open(ofile,'w')
+
+        for l in h:
+            nFile.write("{}\n".format(l))
+        for l in p:
+            nFile.write("{}\n".format(l))
+        nFile.close()
+        nt += 1
+
+    n.append("</body>")
+    n.append("</html>")
+
+    ofile = "{}/{}".format(destination,book["webpage"]["title"][lang])
+#    print "creating ", ofile
+    nFile = open(ofile,'w')
+
+    for l in n:
+        nFile.write("{}\n".format(l))
+    nFile.close()
+
+#    print s
+    ofile = "{}/{}".format(destination, indexName)
+#    print "creating ", ofile
+    nFile = open(ofile,'w')
+
+    for l in s:
+        nFile.write("{}\n".format(l))
+    nFile.close()
+
+sys.exit()
